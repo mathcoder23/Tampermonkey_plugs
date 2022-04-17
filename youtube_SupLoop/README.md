@@ -1,1 +1,3 @@
-# Youtube扩展插件实现视频自定义Loop播放
+# To Do
+- audio waves by wavesurfer
+- audio real compare
