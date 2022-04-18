@@ -14,20 +14,20 @@
 const supLoopPanelVueHtml = `
       <div id="supLoopPanel" style="display: none;">
            <div style="padding:10px;font-weight: var(--ytd-tab-system_-_font-weight);color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));font-size: small;">
-
+           
            <span>Welcome {{name}}!</span>
            <span style="margin-left:20px;" >Status:{{status}}</span>
            </div>
 
             <div id="supLoopTagList" >
                 <div style="display:flex;" >
-                    <div v-for="(item,index) in timePointList" class='loop_tag ' :class="{'loop_active':item.isLoop}"
-                    @click="clickTimePoint(index,item)"
-                    @dblclick="dblclickTimePoint(index,item)"
+                    <div v-for="(item,index) in timePointList" class='loop_tag ' :class="{'loop_active':item.isLoop,'loop_select':item.isSelect}" 
+                    @click="clickTimePoint(index,item)" 
+                    @dblclick="dblclickTimePoint(index,item)" 
                     >{{formatTime(item.time)}}</div>
                 </div>
             </div>
-
+            
             <div style="padding:10px;font-weight: var(--ytd-tab-system_-_font-weight);color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));font-size: small;">
                 <p>Help: </p>
                 <p>keydown: key a is insert point</p>
@@ -43,10 +43,16 @@ const supLoopPanelVueHtml = `
                 padding: 5px;
                 background: gray;
                 cursor: pointer;
+                margin-bottom: 10px;
             }
 
             .loop_active{
                 background: #3ccccc;
+            }
+
+            .loop_select {
+                border-bottom: 4px solid #FF9966;
+                margin-bottom: 6px;
             }
         </style>
 `
@@ -65,28 +71,31 @@ const supLoopPanelHandler = () => {
 
             loopTimeout: null,
             status: 'StopLoop',
-            currentHref: ''
+            currentHref: '',
+            lastSelectIndex: null
         },
         methods: {
             formatTime(time) {
+                var ms = (time - parseInt(time)).toFixed(3) * 1000
                 var h = Math.floor(time / 3600);
                 var m = Math.floor((time / 60 % 60));
                 var s = Math.floor((time % 60));
                 if (h < 1) {
-                    return (m < 10 ? ('0' + m) : (m)) + ":" + (s < 10 ? ('0' + s) : (s));
+                    return (m < 10 ? ('0' + m) : (m)) + ":" + (s < 10 ? ('0' + s) : (s)) + "." + ms;
                 } else {
-                    return (h < 10 ? ('0' + h) : (h)) + ":" + (m < 10 ? ('0' + m) : (m)) + ":" + (s < 10 ? ('0' + s) : (s));
+                    return (h < 10 ? ('0' + h) : (h)) + ":" + (m < 10 ? ('0' + m) : (m)) + ":" + (s < 10 ? ('0' + s) : (s)) + "." + ms;
                 }
             },
             clickTimePoint(index, timePoint) {
                 let video = $('video')[0]
                 video.currentTime = timePoint.time
+                this.clearTimePointStatus()
+                this.stopLoop()
+
+                this.timePointList[index].isLoop = true
+                this.timePointList[index].isSelect = true
 
                 if (index < this.timePointList.length - 1) {
-                    for (let item of this.timePointList) {
-                        item.isLoop = false
-                    }
-                    this.timePointList[index].isLoop = true
                     this.timePointList[index + 1].isLoop = true
                 }
             },
@@ -103,29 +112,60 @@ const supLoopPanelHandler = () => {
                     this.insertTimePoint()
                 } else if (e.keyCode === 71) {
                     // key g
-                    this.status = 'Looping'
+                    
                     this.goLoop()
                 } else if (e.keyCode === 83) {
                     // key s
-                    this.status = 'Stop Loop'
+                    
                     this.stopLoop()
+                } else if (e.keyCode === 81) {
+                    // key q
+                    this.qucklyModifyTimePoint(-0.25)
+                } else if (e.keyCode === 82) {
+                    // key r
+                    this.qucklyModifyTimePoint(0.25)
+                }
+            },
+            clearTimePointStatus() {
+                for (let item of this.timePointList) {
+                    item.isLoop = false
+                    item.isSelect = false
                 }
             },
             insertTimePoint() {
                 let v = $('video')[0]
-                for (let i = 0; i < this.timePointList.length - 1; i++) {
-                    this.timePointList[i].isLoop = false
-
-                }
+                this.clearTimePointStatus()
+                this.timePointList[this.timePointList.length - 1].isLoop = true
                 this.timePointList.push({
                     time: v.currentTime,
-                    isLoop: true
+                    isLoop: true,
+                    isSelect: true
                 })
+                this.saveRecord()
+            },
+            qucklyModifyTimePoint(time) {
+                for (let index in this.timePointList) {
+                    if (this.timePointList[index].isSelect) {
+                        this.modifyTimePoint(index, { time: this.timePointList[index].time + time })
+                        return
+                    }
+                }
+            },
+            modifyTimePoint(index, obj) {
+                this.stopLoop()
+
+                this.$set(this.timePointList, index, Object.assign(this.timePointList[index], obj))
+
+                let video = $('video')[0]
+                video.currentTime = this.timePointList[index].time
+                video.play()
+
                 this.saveRecord()
             },
             goLoop() {
                 this.stopLoop()
 
+                this.status = 'Looping'
                 if (this.timePointList.length > 1) {
                     // search loop index
                     let startLoop = null
@@ -145,6 +185,7 @@ const supLoopPanelHandler = () => {
 
             },
             stopLoop() {
+                this.status = 'Stop Loop'
                 if (null !== this.loopTimeout) {
                     clearTimeout(this.loopTimeout)
                     this.loopTimeout = null
@@ -197,55 +238,6 @@ const supLoopPanelHandler = () => {
     });
 }
 
-const keyEvent = (e) => {
-    console.log('key', e.keyCode)
-
-    if (e.keyCode === 65) {
-        insertTag()
-        //renderTagList()
-    } else if (e.keyCode === 71) {
-        goTag()
-    } else if (e.keyCode === 83) {
-        stopTag()
-    }
-}
-
-const insertTag = () => {
-    let v = $('video')[0]
-    for (let i = 0; i < tagList.length - 1; i++) {
-        tagList[i].isLoop = false
-
-    }
-    tagList.push({
-        time: v.currentTime,
-        isLoop: true
-    })
-
-
-}
-
-const goTag = () => {
-    if (null !== timeout) {
-        clearTimeout(timeout)
-        timeout = null
-    }
-    if (tagList.length > 1) {
-        startVideo(tagList[tagList.length - 2].time, tagList[tagList.length - 1].time)
-    }
-
-}
-
-const stopTag = () => {
-    if (null !== timeout) {
-        clearTimeout(timeout)
-        timeout = null
-    }
-}
-
-
-
-
-
 let showPanel = false
 let yuVideo = null
 let setuping = false
@@ -267,7 +259,7 @@ const setupHtml = () => {
     <div style="display: flex;cursor:pointer;    margin-top: -5px;
     align-content: center;
     align-items: center;" id="supLoopButton">
-       <div style="width: 24px;height: 24px;" class='yt-icon-container yt-icon style-scope ytd-button-renderer' ><svg style="width: 100%;height: 100%;" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g class="style-scope yt-icon"> <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" class="style-scope yt-icon"></path> </g></svg></div>
+       <div style="width: 24px;height: 24px;color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));" class='yt-icon-container yt-icon style-scope ytd-button-renderer' ><svg style="width: 100%;height: 100%;" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g class="style-scope yt-icon"> <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" class="style-scope yt-icon"></path> </g></svg></div>
        <div id="supLoop" style="font-weight: var(--ytd-tab-system_-_font-weight);color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));
     font-size: small;" class="style-scope ytd-button-renderer style-default size-default" aria-label="Loop">SupLoop</div>
     </div>
@@ -303,7 +295,7 @@ const renderTagList = () => {
     }
     tagListHtml += `
     </div>
-
+    
     `
     $('#supLoopTagList').html(tagListHtml)
 
