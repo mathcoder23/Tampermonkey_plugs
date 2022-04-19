@@ -14,20 +14,20 @@
 const supLoopPanelVueHtml = `
       <div id="supLoopPanel" style="display: none;">
            <div style="padding:10px;font-weight: var(--ytd-tab-system_-_font-weight);color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));font-size: small;">
-           
+
            <span>Welcome {{name}}!</span>
            <span style="margin-left:20px;" >Status:{{status}}</span>
            </div>
 
             <div id="supLoopTagList" >
-                <div style="display:flex;" >
-                    <div v-for="(item,index) in timePointList" class='loop_tag ' :class="{'loop_active':item.isLoop,'loop_select':item.isSelect}" 
-                    @click="clickTimePoint(index,item)" 
-                    @dblclick="dblclickTimePoint(index,item)" 
+                <div style="display:flex;flex-wrap: wrap;" >
+                    <div v-for="(item,index) in timePointList" class='loop_tag ' :class="{'loop_active':item.isLoop,'loop_select':item.isSelect}"
+                    @click="clickTimePoint(index,item)"
+                    @dblclick="dblclickTimePoint(index,item)"
                     >{{formatTime(item.time)}}</div>
                 </div>
             </div>
-            
+
             <div style="padding:10px;font-weight: var(--ytd-tab-system_-_font-weight);color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));font-size: small;">
                 <p>Help: </p>
                 <p>keydown: key a is insert point</p>
@@ -112,11 +112,11 @@ const supLoopPanelHandler = () => {
                     this.insertTimePoint()
                 } else if (e.keyCode === 71) {
                     // key g
-                    
+
                     this.goLoop()
                 } else if (e.keyCode === 83) {
                     // key s
-                    
+
                     this.stopLoop()
                 } else if (e.keyCode === 81) {
                     // key q
@@ -219,6 +219,7 @@ const supLoopPanelHandler = () => {
                         this.record = JSON.parse(str)
                         this.timePointList = this.record.timePointList
                         this.showPanel = this.record.showPanel
+                        console.log('load record', this.record)
                     } catch (e) {
                         console.log('err', e)
                         localStorage.removeItem('supLoopRecord-' + location.href)
@@ -233,6 +234,7 @@ const supLoopPanelHandler = () => {
             this.currentHref = location.href
             console.log('mounted supLoopPanel')
             this.stopLoop()
+
             this.loadRecord()
         }
     });
@@ -295,7 +297,7 @@ const renderTagList = () => {
     }
     tagListHtml += `
     </div>
-    
+
     `
     $('#supLoopTagList').html(tagListHtml)
 
