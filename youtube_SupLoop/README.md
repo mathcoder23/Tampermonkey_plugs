@@ -19,3 +19,8 @@
 - audio waves by wavesurfer https://www.zhangxinxu.com/wordpress/2018/12/wavesurfer-js-mp3-audio-wave/  
 - 支持实时语音波形比较
 - 支持查看本地所有记录列表
+
+# 版本发布
+## 1.0.0
+- 新增Loop计数器
+- 修复异常选中时，开始时间与结束时间异常的无限轮询bug
