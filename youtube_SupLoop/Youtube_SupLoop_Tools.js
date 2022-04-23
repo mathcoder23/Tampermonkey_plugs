@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Youtube SupLoop Tools
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.0.0
 // @description  try to take over the world!
 // @author       You
 // @match        https://www.youtube.com/*
@@ -14,20 +14,20 @@
 const supLoopPanelVueHtml = `
       <div id="supLoopPanel" style="display: none;">
            <div style="padding:10px;font-weight: var(--ytd-tab-system_-_font-weight);color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));font-size: small;">
-
+           
            <span>Welcome {{name}}!</span>
-           <span style="margin-left:20px;" >Status:{{status}}</span>
+           <span style="margin-left:20px;" >Status:{{status}}</span> <span style="margin-left:10px;" v-if="status==='Looping'">{{loopCount}}</span>
            </div>
 
             <div id="supLoopTagList" >
                 <div style="display:flex;flex-wrap: wrap;" >
-                    <div v-for="(item,index) in timePointList" class='loop_tag ' :class="{'loop_active':item.isLoop,'loop_select':item.isSelect}"
-                    @click="clickTimePoint(index,item)"
-                    @dblclick="dblclickTimePoint(index,item)"
+                    <div v-for="(item,index) in timePointList" class='loop_tag ' :class="{'loop_active':item.isLoop,'loop_select':item.isSelect}" 
+                    @click="clickTimePoint(index,item)" 
+                    @dblclick="dblclickTimePoint(index,item)" 
                     >{{formatTime(item.time)}}</div>
                 </div>
             </div>
-
+            
             <div style="padding:10px;font-weight: var(--ytd-tab-system_-_font-weight);color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));font-size: small;">
                 <p>Help: </p>
                 <p>keydown: key a is insert point</p>
@@ -35,6 +35,7 @@ const supLoopPanelVueHtml = `
                 <p>keydown: key s is stop loop</p>
                 <p>click timePoint is switch loop section</p>
                 <p>double click timePoint is delete timePoint</p>
+                <p>version: 1.0.0</p>
             </div>
        </div>
        <style>
@@ -72,7 +73,8 @@ const supLoopPanelHandler = () => {
             loopTimeout: null,
             status: 'StopLoop',
             currentHref: '',
-            lastSelectIndex: null
+            lastSelectIndex: null,
+            loopCount: 0
         },
         methods: {
             formatTime(time) {
@@ -190,19 +192,36 @@ const supLoopPanelHandler = () => {
                     clearTimeout(this.loopTimeout)
                     this.loopTimeout = null
                 }
+                this.loopCount = 0
 
             },
             startVideo(startTime, endTime) {
                 if (this.currentHref !== location.href) {
                     console.log('close loop:', this.currentHref, location.href)
+                    this.stopLoop()
                     return
                 }
+
+                if (!startTime || !endTime) {
+                    console.log('close loop')
+                    this.stopLoop()
+                    return
+                }
+
+                if (endTime - startTime < 0.5) {
+                    console.log('close loop,endTime - startTime=', endTime - startTime)
+                    this.stopLoop()
+                    return
+                }
+
                 console.log('startVideoLoop', startTime, endTime)
                 let video = $('video')[0]
                 video.currentTime = startTime
                 video.play()
                 this.loopTimeout = setTimeout(() => {
+                    this.loopCount++
                     this.startVideo(startTime, endTime)
+
                 }, (endTime - startTime) * 1000)
             },
             saveRecord() {
@@ -297,7 +316,7 @@ const renderTagList = () => {
     }
     tagListHtml += `
     </div>
-
+    
     `
     $('#supLoopTagList').html(tagListHtml)
 
