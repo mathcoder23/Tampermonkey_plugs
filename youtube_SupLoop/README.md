@@ -1,6 +1,11 @@
 # 插件用途
 > SupLoop可以帮助你正在Y站播放的视频，进行自定义时间段段循环播放。这样的功能非常将有助于你学习语言听力，不断的重复听力，当然更期待它有其他有帮助的作用。
 
+# 安装指南
+- 在你的浏览器(推荐Firefox、Chrome)安装Tampermonkey插件
+- 了解基本的Tampermonkey插件的使用
+- 拷贝 `https://raw.githubusercontent.com/mathcoder23/Tampermonkey_plugs/main/youtube_SupLoop/Youtube_SupLoop_Tools.js`的js文件到Tampermonkey
+- 进入Y站视频，视频右下方会多出`SupLoop`, 点击它便可开始使用
 
 # 使用说明
 > 插件的大部分功能是通过按快捷键完成的，这将提示你的使用效率，同时也增加了学习成本，但这对于一个下定决心要学习的小伙伴不是一件难事 
