@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Drive Google SupLoop Tools
+// @name         Youtube Api SupLoop Tool
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
+// @version      0.0.1
 // @description  try to take over the world!
 // @author       You
 // @match        https://youtube.googleapis.com/embed/*
@@ -12,11 +12,28 @@
 // ==/UserScript==
 
 const supLoopPanelVueHtml = `
-      <div id="supLoopPanel" style="display: none;">
-           <div style="padding:10px;font-weight: var(--ytd-tab-system_-_font-weight);color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));font-size: small;">
+<style>
+               .sup-loop-panel-head{
+                    justify-content: space-between;
+                    display: flex;
+                    padding:10px;
+                    font-weight: var(--ytd-tab-system_-_font-weight);
+                    color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));
+                    font-size: small;
+               }
 
-           <span>Welcome {{name}}!</span>
-           <span style="margin-left:20px;" >Status:{{status}}</span> <span style="margin-left:10px;" v-if="status==='Looping'">{{loopCount}}</span>
+           </style>
+      <div id="supLoopPanel" >
+
+           <div class="sup-loop-panel-head" style="">
+               <div>
+                <span>Welcome {{name}}(v0.0.1)</span>
+                <span style="margin-left:20px;" >Status:{{status}}</span> <span style="margin-left:10px;" v-if="status==='Looping'">{{loopCount}}</span>
+               </div>
+               <div>
+                 <span><a style="text-decoration:none;color:#CCFFFF" target="_blank" href="https://github.com/mathcoder23/Tampermonkey_plugs/tree/main/youtube_SupLoop">Help</a></span>
+               </div>
+
            </div>
             <div id="supLoopTagList" >
                 <div style="display:flex;flex-wrap: wrap;" >
@@ -25,16 +42,6 @@ const supLoopPanelVueHtml = `
                     @dblclick="dblclickTimePoint(index,item)"
                     >{{formatTime(item.time)}}</div>
                 </div>
-            </div>
-
-            <div style="padding:10px;font-weight: var(--ytd-tab-system_-_font-weight);color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));font-size: small;">
-                <p>Help: </p>
-                <p>keydown: key a is insert point</p>
-                <p>keydown: key g is start loop</p>
-                <p>keydown: key s is stop loop</p>
-                <p>click timePoint is switch loop section</p>
-                <p>double click timePoint is delete timePoint</p>
-                <p>version: 1.0.0</p>
             </div>
        </div>
        <style>
@@ -123,6 +130,9 @@ const supLoopPanelHandler = () => {
                 } else if (e.keyCode === 82) {
                     // key r
                     this.qucklyModifyTimePoint(0.25)
+                } else if (e.keyCode === 32){
+                    // key space
+                    this.stopLoop()
                 }
             },
             clearTimePointStatus() {
@@ -215,11 +225,13 @@ const supLoopPanelHandler = () => {
                 let video = $('video')[0]
                 video.currentTime = startTime
                 video.play()
+                let realSpaceTime = (endTime - startTime)/(video.playbackRate)
+                console.log('real space time',realSpaceTime)
                 this.loopTimeout = setTimeout(() => {
                     this.loopCount++
                     this.startVideo(startTime, endTime)
 
-                }, (endTime - startTime) * 1000)
+                }, realSpaceTime * 1000)
             },
             saveRecord() {
                 let record = {
@@ -247,6 +259,7 @@ const supLoopPanelHandler = () => {
             $(document).keydown((e) => {
                 this.onKeydown(e)
             });
+
             this.currentHref = location.href
             console.log('mounted supLoopPanel')
             this.stopLoop()
@@ -283,18 +296,26 @@ const setupHtml = () => {
     </div>
      `
     let eleBtn2 = `
-    <button id="supLoopButton" class="ytp-subtitles-button ytp-button" aria-label="Subtitles/closed SupLoop ()" style="" aria-pressed="false" title="Subtitles/closed SupLoop ()"><svg class="ytp-subtitles-button-icon" height="100%" version="1.1" viewBox="0 0 36 36" width="100%"><use class="ytp-svg-shadow" xlink:href="#ytp-id-16"></use><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" ></path></svg></button>
+    <button id="supLoopButton" class="ytp-subtitles-button ytp-button" aria-label="Subtitles/closed SupLoop ()" style="margin: 0px auto;display: inline-flex;justify-content: center;align-items: center;" aria-pressed="false" title="Subtitles/closed SupLoop ()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="100%" class="ytp-subtitles-button-icon"><path fill="none" d="M0 0h24v24H0z"></path><path d="M5.463 4.433A9.961 9.961 0 0 1 12 2c5.523 0 10 4.477 10 10 0 2.136-.67 4.116-1.81 5.74L17 12h3A8 8 0 0 0 6.46 6.228l-.997-1.795zm13.074 15.134A9.961 9.961 0 0 1 12 22C6.477 22 2 17.523 2 12c0-2.136.67-4.116 1.81-5.74L7 12H4a8 8 0 0 0 13.54 5.772l.997 1.795z" fill="rgba(255,255,255,1)"></path></svg></button>
      `
     let supLoopContainer = `
-    <div id="supLoopContainer"></div>
+    <style>
+       .sup-loop-container{
+           padding:10px;
+           min-width:50%;
+           max-width: 95%;
+       }
+    </style>
+    <div id="supLoopContainer" class="html5-video-info-panel sup-loop-container" ></div>
     `
     $('.ytp-right-controls').prepend(eleBtn2)
 
     // insert panel
 
+    $('body').append(supLoopContainer)
     $('#supLoopContainer').append(supLoopPanelVueHtml)
 
-    $('#supLoop').click(() => {
+    $('#supLoopButton').click(() => {
         switchPanel()
     })
     supLoopPanelHandler()
@@ -303,76 +324,9 @@ const setupHtml = () => {
 }
 
 const switchPanel = (showPanel) => {
-    let show = $('#supLoopPanel').toggle()
+    let show = $('#supLoopContainer').toggle()
 }
 
-
-
-const renderTagList = () => {
-    let tagListHtml = '<div style="display:flex;">'
-    let i = 0
-    for (let tag of tagList) {
-        let tagId = `supLoopTag${i}`
-        tagListHtml += `<div class='loop_tag ${tag.isLoop ? 'loop_active' : ''}' id="${tagId}" >${formatTime(tag.time)}</div>`
-
-        i++
-    }
-    tagListHtml += `
-    </div>
-
-    `
-    $('#supLoopTagList').html(tagListHtml)
-
-    for (let ii = 0; ii < tagList.length; ii++) {
-        let tagId = `supLoopTag${ii}`
-        $(`#${tagId}`).click(() => {
-            clickTag(ii)
-        })
-        $(`#${tagId}`).dblclick(() => {
-            doubleClickTag(ii)
-        })
-    }
-}
-
-const formatTime = (time) => {
-    var h = Math.floor(time / 3600);
-    var m = Math.floor((time / 60 % 60));
-    var s = Math.floor((time % 60));
-    if (h < 1) {
-        return (m < 10 ? ('0' + m) : (m)) + ":" + (s < 10 ? ('0' + s) : (s));
-    } else {
-        return (h < 10 ? ('0' + h) : (h)) + ":" + (m < 10 ? ('0' + m) : (m)) + ":" + (s < 10 ? ('0' + s) : (s));
-    }
-}
-const doubleClickTag = (index) => {
-    console.log('tag', index)
-    let time = prompt("Input modify time:", tagList[index].time)
-    if (time) {
-        tagList[index].time = time
-    }
-
-    renderTagList()
-}
-const clickTag = (index) => {
-    let video = $('video')[0]
-    video.currentTime = tagList[index].time
-}
-
-const loopVideo = (index) => {
-    if (index > tagList.length - 1) {
-        return
-    }
-
-}
-const startVideo = (startTime, endTime) => {
-    console.log('startVideo', startTime, endTime)
-    let video = $('video')[0]
-    video.currentTime = startTime
-    video.play()
-    timeout = setTimeout(() => {
-        startVideo(startTime, endTime)
-    }, (endTime - startTime) * 1000)
-}
 
 const checkSetup = () => {
 
