@@ -11,12 +11,14 @@
 - 了解基本的Tampermonkey插件的使用
 
 ## SupLoop(原生Youtube版)安装
-- 拷贝 `https://raw.githubusercontent.com/mathcoder23/Tampermonkey_plugs/main/youtube_SupLoop/Youtube_SupLoop_Tools.js`的js文件到Tampermonkey
+- 拷贝 `https://raw.githubusercontent.com/mathcoder23/Tampermonkey_plugs/main/youtube_SupLoop/Youtube_SupLoop_Tools.js`的内容
+- 点击Tampermonkey插件图标-> Create a new Script -> 覆盖内容粘贴拷贝的js代码 -> 保存
 - 进入Y站视频，视频右下方会多出`SupLoop`, 点击它便可开始使用
 
 ## SupLoop(内嵌Youtube版)安装
-- 拷贝 `https://raw.githubusercontent.com/mathcoder23/Tampermonkey_plugs/main/youtube_SupLoop/YoutubeApi_SupLoop_Tool.js`的js文件到Tampermonkey
-- 进入内嵌Y站视频的第三方网站(比如Google Drive视频)，视频右下方会多出一个循环按钮图标, 点击它便可开始使用
+- 拷贝 `https://raw.githubusercontent.com/mathcoder23/Tampermonkey_plugs/main/youtube_SupLoop/YoutubeApi_SupLoop_Tool.js`的内容
+- 点击Tampermonkey插件图标-> Create a new Script -> 覆盖内容粘贴拷贝的js代码 -> 保存
+- 进入内嵌Y站视频的第三方网站(比如Google Drive视频)，视频右下方会多出一个循环按钮图标(快捷键t，切换SupLoop面板的隐藏/显示), 点击它便可开始使用
 
 # 使用说明
 > 插件的大部分功能是通过按快捷键完成的，这将提升你的使用效率，同时也增加了学习成本，但这对于一个下定决心要学习的小伙伴不是一件难事 
