@@ -42,6 +42,8 @@
 - 按g后，会有Status现实状态
 - 被暂停后，会自动取消Looping状态
 
+# Bug
+- 通过Youtebe主页点击视频后，SupLoop无法注入，需重新刷新视频页面
 
 # To Do
 - audio waves by wavesurfer https://www.zhangxinxu.com/wordpress/2018/12/wavesurfer-js-mp3-audio-wave/  
