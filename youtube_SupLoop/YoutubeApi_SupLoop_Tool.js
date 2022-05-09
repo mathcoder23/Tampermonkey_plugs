@@ -5,7 +5,7 @@
 // @description  try to take over the world!
 // @author       You
 // @match        https://youtube.googleapis.com/embed/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=google.com
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
 // @grant        none
 // @require      https://code.jquery.com/jquery-2.2.4.js
 // @require      https://raw.githubusercontent.com/mathcoder23/Tampermonkey_plugs/main/youtube_SupLoop/framework/vue%402.5.16.js
@@ -133,6 +133,9 @@ const supLoopPanelHandler = () => {
                 } else if (e.keyCode === 32){
                     // key space
                     this.stopLoop()
+                } else if (e.keyCode === 84){
+                    // key t
+                    $('#supLoopContainer').toggle()
                 }
             },
             clearTimePointStatus() {
@@ -238,7 +241,8 @@ const supLoopPanelHandler = () => {
                     showPanel: this.showPanel,
                     timePointList: this.timePointList
                 }
-                localStorage.setItem('supLoopRecord-' + location.href, JSON.stringify(record))
+                // close storage. iframe can't read location.href
+                //localStorage.setItem('supLoopRecord-' + location.href, JSON.stringify(record))
             },
             loadRecord() {
                 let str = localStorage.getItem('supLoopRecord-' + location.href)
@@ -259,6 +263,11 @@ const supLoopPanelHandler = () => {
             $(document).keydown((e) => {
                 this.onKeydown(e)
             });
+
+            $('video')[0].addEventListener("pause",()=>{
+                console.log('yb pause')
+                this.stopLoop()
+            })
 
             this.currentHref = location.href
             console.log('mounted supLoopPanel')
