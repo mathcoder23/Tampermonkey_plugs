@@ -7,10 +7,12 @@
 // @match        https://www.youtube.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
 // @grant        none
+// @require      data:text/plain;base64,d2luZG93LnRydXN0ZWRUeXBlcy5jcmVhdGVQb2xpY3koJ2RlZmF1bHQnLCB7IGNyZWF0ZUhUTUw6IHN0ciA9PiBzdHIsIGNyZWF0ZVNjcmlwdFVSTDogc3RyPT4gc3RyLCBjcmVhdGVTY3JpcHQ6IHN0cj0+IHN0ciB9KTs=
 // @require      https://code.jquery.com/jquery-2.2.4.js
 // @require      https://raw.githubusercontent.com/mathcoder23/Tampermonkey_plugs/main/youtube_SupLoop/framework/vue%402.5.16.js
 // ==/UserScript==
 
+// issue for @require https://stackoverflow.com/questions/68205265/why-does-require-always-give-me-the-error-couldnt-load-require-from-forbidde
 const supLoopPanelVueHtml = `
       <div id="supLoopPanel" style="display: none;">
            <div style="padding:10px;font-weight: var(--ytd-tab-system_-_font-weight);color:var(--yt-button-icon-button-text-color,var(--yt-spec-text-secondary));font-size: small;">
